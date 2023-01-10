@@ -94,6 +94,6 @@ class TokenManager extends BaseTokenManager
             ->execute()
         ;
 
-        return $result['n'];
+        return $result->getDeletedCount();
     }
 }

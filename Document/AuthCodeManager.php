@@ -94,6 +94,6 @@ class AuthCodeManager extends BaseAuthCodeManager
             ->execute()
         ;
 
-        return $result['n'];
+        return $result->getDeletedCount();
     }
 }
