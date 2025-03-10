@@ -22,7 +22,8 @@ use FOS\OAuthServerBundle\Model\ClientManagerInterface;
 use FOS\OAuthServerBundle\Model\RefreshToken;
 use FOS\OAuthServerBundle\Model\RefreshTokenManagerInterface;
 use FOS\OAuthServerBundle\Storage\OAuthStorage;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -50,7 +51,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
      */
     protected $userProvider;
     /**
-     * @var EncoderFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
+     * @var PasswordHasherFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
      */
     protected $encoderFactory;
     /**
@@ -80,12 +81,12 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $this->encoderFactory = $this->getMockBuilder(EncoderFactoryInterface::class)
+        $this->encoderFactory = $this->getMockBuilder(PasswordHasherFactoryInterface::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        $this->storage = new OAuthStorage($this->clientManager, $this->accessTokenManager, $this->refreshTokenManager, $this->authCodeManager, $this->userProvider, $this->encoderFactory);
+        $this->storage = new OAuthStorage($this->clientManager, $this->accessTokenManager, $this->refreshTokenManager, $this->authCodeManager, $this->encoderFactory, $this->usepr);
     }
 
     public function testGetClientReturnsClientWithGivenId(): void
@@ -363,7 +364,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
 
         $this->userProvider
             ->expects(self::once())
-            ->method('loadUserByUsername')
+            ->method('loadUserByIdentifier')
             ->with('Joe')
             ->willThrowException(new AuthenticationException('No such user'))
         ;
@@ -385,24 +386,24 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         $user->expects($this->once())
             ->method('getSalt')->with()->will($this->returnValue('bar'));
 
-        $encoder = $this->getMockBuilder('Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface')
+        $encoder = $this->getMockBuilder(PasswordHasherInterface::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
         $encoder->expects($this->once())
-            ->method('isPasswordValid')
+            ->method('verify')
             ->with('foo', 'baz', 'bar')
             ->will($this->returnValue(true))
         ;
 
         $this->userProvider->expects($this->once())
-            ->method('loadUserByUsername')
+            ->method('loadUserByIdentifier')
             ->with('Joe')
             ->will($this->returnValue($user))
         ;
 
         $this->encoderFactory->expects($this->once())
-            ->method('getEncoder')
+            ->method('getPasswordHasher')
             ->with($user)
             ->will($this->returnValue($encoder))
         ;
@@ -435,7 +436,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->userProvider->expects($this->once())
-            ->method('loadUserByUsername')
+            ->method('loadUserByIdentifier')
             ->with('Joe')
             ->will($this->returnValue($user))
         ;
@@ -454,7 +455,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         $client = new Client();
 
         $this->userProvider->expects($this->once())
-            ->method('loadUserByUsername')
+            ->method('loadUserByIdentifier')
             ->with('Joe')
             ->willThrowException(new AuthenticationException('No such user'))
         ;
