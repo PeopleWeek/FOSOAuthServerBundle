@@ -28,8 +28,11 @@ use OAuth2\Model\IOAuth2Client;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\LegacyPasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2GrantCode, IOAuth2GrantImplicit, IOAuth2GrantClient, IOAuth2GrantExtension, GrantExtensionDispatcherInterface
@@ -60,25 +63,30 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
     protected $userProvider;
 
     /**
-     * @var EncoderFactoryInterface
+     * @var PasswordHasherFactoryInterface
      */
-    protected $encoderFactory;
+    protected $hasherFactory;
 
     /**
      * @var array [uri] => GrantExtensionInterface
      */
     protected $grantExtensions;
 
-    public function __construct(ClientManagerInterface $clientManager, AccessTokenManagerInterface $accessTokenManager,
-        RefreshTokenManagerInterface $refreshTokenManager, AuthCodeManagerInterface $authCodeManager,
-        UserProviderInterface $userProvider = null, EncoderFactoryInterface $encoderFactory = null)
+    public function __construct(
+        ClientManagerInterface $clientManager,
+        AccessTokenManagerInterface $accessTokenManager,
+        RefreshTokenManagerInterface $refreshTokenManager,
+        AuthCodeManagerInterface $authCodeManager,
+        PasswordHasherFactoryInterface $hasherFactory,
+        ?UserProviderInterface $userProvider = null,
+    )
     {
         $this->clientManager = $clientManager;
         $this->accessTokenManager = $accessTokenManager;
         $this->refreshTokenManager = $refreshTokenManager;
         $this->authCodeManager = $authCodeManager;
         $this->userProvider = $userProvider;
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
 
         $this->grantExtensions = [];
     }
@@ -157,14 +165,28 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
             return false;
         }
 
-        $encoder = $this->encoderFactory->getEncoder($user);
-        if ($encoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
-            return [
-                'data' => $user,
-            ];
+        if (!$user instanceof PasswordAuthenticatedUserInterface && !$user instanceof LegacyPasswordAuthenticatedUserInterface) {
+            return false;
         }
 
-        return false;
+        $hasher = $this->hasherFactory->getPasswordHasher($user);
+        
+        $salt = match (true) {
+            $user instanceof LegacyPasswordAuthenticatedUserInterface => $user->getSalt(),
+            default => null
+        };
+
+        if ($user instanceof LegacyPasswordAuthenticatedUserInterface && $salt !== null) {
+            assert($hasher instanceof LegacyPasswordHasherInterface);
+
+            $verified = $hasher->verify($user->getPassword(), $password, $salt);
+
+            return $verified ? ['data' => $user] : false;
+        }
+
+        $verified = $hasher->verify($user->getPassword(), $password);
+
+        return $verified ? ['data' => $user] : false;
     }
 
     /**
