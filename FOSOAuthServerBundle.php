@@ -16,8 +16,6 @@ namespace FOS\OAuthServerBundle;
 use FOS\OAuthServerBundle\DependencyInjection\Compiler\GrantExtensionsCompilerPass;
 use FOS\OAuthServerBundle\DependencyInjection\Compiler\RequestStackCompilerPass;
 use FOS\OAuthServerBundle\DependencyInjection\FOSOAuthServerExtension;
-use FOS\OAuthServerBundle\DependencyInjection\Security\Factory\OAuthFactory;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -31,10 +29,6 @@ class FOSOAuthServerBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-
-        /** @var SecurityExtension $extension */
-        $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new OAuthFactory());
 
         $container->addCompilerPass(new GrantExtensionsCompilerPass());
         $container->addCompilerPass(new RequestStackCompilerPass());

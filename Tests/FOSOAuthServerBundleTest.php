@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace FOS\OAuthServerBundle\Tests;
 
 use FOS\OAuthServerBundle\DependencyInjection\Compiler;
-use FOS\OAuthServerBundle\DependencyInjection\Security\Factory\OAuthFactory;
 use FOS\OAuthServerBundle\FOSOAuthServerBundle;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -51,13 +50,6 @@ class FOSOAuthServerBundleTest extends \PHPUnit\Framework\TestCase
             ->method('getExtension')
             ->with('security')
             ->willReturn($securityExtension)
-        ;
-
-        $securityExtension
-            ->expects($this->at(0))
-            ->method('addSecurityListenerFactory')
-            ->with(new OAuthFactory())
-            ->willReturn(null)
         ;
 
         $containerBuilder
