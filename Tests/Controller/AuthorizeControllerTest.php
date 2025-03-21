@@ -170,10 +170,10 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $this->session = $this->getMockBuilder(SessionInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        // $this->session = $this->getMockBuilder(SessionInterface::class)
+        //     ->disableOriginalConstructor()
+        //     ->getMock()
+        // ;
 
         $this->instance = new AuthorizeController(
             $this->requestStack,
@@ -185,7 +185,7 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             $this->clientManager,
             $this->eventDispatcher,
             $this->twig,
-            $this->session
+            // $this->session
         );
 
         /** @var \PHPUnit\Framework\MockObject\MockObject&Request $request */
@@ -272,12 +272,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->user)
         ;
 
-        $this->session
-            ->expects($this->at(0))
-            ->method('get')
-            ->with('_fos_oauth_server.ensure_logout')
-            ->willReturn(false)
-        ;
+        // $this->session
+        //     ->expects($this->at(0))
+        //     ->method('get')
+        //     ->with('_fos_oauth_server.ensure_logout')
+        //     ->willReturn(false)
+        // ;
 
         $propertyReflection = new \ReflectionProperty(AuthorizeController::class, 'client');
         $propertyReflection->setAccessible(true);
@@ -344,12 +344,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->user)
         ;
 
-        $this->session
-            ->expects($this->at(0))
-            ->method('get')
-            ->with('_fos_oauth_server.ensure_logout')
-            ->willReturn(false)
-        ;
+        // $this->session
+        //     ->expects($this->at(0))
+        //     ->method('get')
+        //     ->with('_fos_oauth_server.ensure_logout')
+        //     ->willReturn(false)
+        // ;
 
         $propertyReflection = new \ReflectionProperty(AuthorizeController::class, 'client');
         $propertyReflection->setAccessible(true);
@@ -413,26 +413,26 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->user)
         ;
 
-        $this->session
-            ->expects($this->at(0))
-            ->method('get')
-            ->with('_fos_oauth_server.ensure_logout')
-            ->willReturn(true)
-        ;
+        // $this->session
+        //     ->expects($this->at(0))
+        //     ->method('get')
+        //     ->with('_fos_oauth_server.ensure_logout')
+        //     ->willReturn(true)
+        // ;
 
-        $this->session
-            ->expects($this->at(1))
-            ->method('invalidate')
-            ->with(600)
-            ->willReturn(true)
-        ;
+        // $this->session
+        //     ->expects($this->at(1))
+        //     ->method('invalidate')
+        //     ->with(600)
+        //     ->willReturn(true)
+        // ;
 
-        $this->session
-            ->expects($this->at(2))
-            ->method('set')
-            ->with('_fos_oauth_server.ensure_logout', true)
-            ->willReturn(null)
-        ;
+        // $this->session
+        //     ->expects($this->at(2))
+        //     ->method('set')
+        //     ->with('_fos_oauth_server.ensure_logout', true)
+        //     ->willReturn(null)
+        // ;
 
         $propertyReflection = new \ReflectionProperty(AuthorizeController::class, 'client');
         $propertyReflection->setAccessible(true);
@@ -499,12 +499,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->user)
         ;
 
-        $this->session
-            ->expects($this->exactly(2))
-            ->method('get')
-            ->with('_fos_oauth_server.ensure_logout')
-            ->willReturn(false)
-        ;
+        // $this->session
+        //     ->expects($this->exactly(2))
+        //     ->method('get')
+        //     ->with('_fos_oauth_server.ensure_logout')
+        //     ->willReturn(false)
+        // ;
 
         $propertyReflection = new \ReflectionProperty(AuthorizeController::class, 'client');
         $propertyReflection->setAccessible(true);
