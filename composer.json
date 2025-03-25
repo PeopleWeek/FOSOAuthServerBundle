@@ -28,10 +28,10 @@
     "require": {
         "php": "^8.0",
         "friendsofsymfony/oauth2-php": "dev-master",
-        "symfony/dependency-injection": "^5.4",
-        "symfony/framework-bundle": "^5.4",
-        "symfony/security-bundle": "^5.4",
-        "symfony/twig-bundle": "^5.4"
+        "symfony/dependency-injection": "^5.4 || ^6.0",
+        "symfony/framework-bundle": "^5.4 || ^6.0",
+        "symfony/security-bundle": "^5.4 || ^6.0",
+        "symfony/twig-bundle": "^5.4 || ^6.0"
     },
     "require-dev": {
         "doctrine/doctrine-bundle": "^2.0",
@@ -43,12 +43,12 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^8.5.23 || ^9.0",
         "rector/rector": "^2.0",
-        "symfony/console": "^5.4",
-        "symfony/form": "^5.4",
-        "symfony/http-kernel": "^5.4",
-        "symfony/phpunit-bridge": "^5.4",
-        "symfony/security-core": "^5.4",
-        "symfony/yaml": "^5.4"
+        "symfony/console": "^5.4 || ^6.0",
+        "symfony/form": "^5.4 || ^6.0",
+        "symfony/http-kernel": "^5.4 || ^6.0",
+        "symfony/phpunit-bridge": "^5.4 || ^6.0",
+        "symfony/security-core": "^5.4 || ^6.0",
+        "symfony/yaml": "^5.4 || ^6.0"
     },
     "suggest": {
         "doctrine/doctrine-bundle": "*",
