@@ -80,7 +80,6 @@ class OAuthAuthenticator implements AuthenticatorInterface
         $token = new OAuthToken($badge->getRoles());
         $token->setToken($badge->getAccessToken()->getToken());
         $token->setUser($badge->getAccessToken()->getUser());
-        $token->setAuthenticated(true);
 
         return $token;
     }
@@ -94,7 +93,6 @@ class OAuthAuthenticator implements AuthenticatorInterface
         $token = new OAuthToken($badge->getRoles());
         $token->setToken($badge->getAccessToken()->getToken());
         $token->setUser($badge->getAccessToken()->getUser());
-        $token->setAuthenticated(true);
 
         return $token;
     }
