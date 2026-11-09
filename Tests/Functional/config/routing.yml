@@ -1,0 +1,7 @@
+fos_oauth_token:
+    resource: ../../../Resources/config/routing/token.yaml
+
+private_resource:
+    path: /private
+    defaults:
+        _controller: 'FOS\OAuthServerBundle\Tests\Functional\OAuthFlowTest::protectedAction'

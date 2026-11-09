@@ -1,0 +1,5 @@
+fos_oauth_server_token:
+    path: /oauth/v2/token
+    methods: [GET, POST]
+    defaults:
+        _controller: fos_oauth_server.controller.token::tokenAction

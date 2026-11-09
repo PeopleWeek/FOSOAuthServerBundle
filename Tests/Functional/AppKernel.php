@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Kernel;
 
 class AppKernel extends Kernel
 {
-    public function registerBundles()
+    public function registerBundles(): iterable
     {
         $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -36,9 +36,29 @@ class AppKernel extends Kernel
         return $bundles;
     }
 
-    public function getCacheDir()
+    protected function build(\Symfony\Component\DependencyInjection\ContainerBuilder $container): void
     {
-        return sys_get_temp_dir().'/FOSOAuthServerBundle/';
+        $container->register('annotation_reader', \Doctrine\Common\Annotations\AnnotationReader::class);
+        if ('custom' === $this->getEnvironment()) {
+            foreach ([
+                'client_manager' => \FOS\OAuthServerBundle\Model\ClientManagerInterface::class,
+                'access_token_manager' => \FOS\OAuthServerBundle\Model\AccessTokenManagerInterface::class,
+                'refresh_token_manager' => \FOS\OAuthServerBundle\Model\RefreshTokenManagerInterface::class,
+                'auth_code_manager' => \FOS\OAuthServerBundle\Model\AuthCodeManagerInterface::class,
+            ] as $id => $class) {
+                $container->register('test.'.$id, $class)->setSynthetic(true)->setPublic(true);
+            }
+        }
+    }
+
+    public function getProjectDir(): string
+    {
+        return dirname(__DIR__, 2);
+    }
+
+    public function getCacheDir(): string
+    {
+        return sys_get_temp_dir().'/FOSOAuthServerBundle/'.$this->getEnvironment().'-'.self::VERSION;
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void

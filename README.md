@@ -6,6 +6,8 @@ FOSOAuthServerBundle
 
 ## Documentation
 
+For the PeopleWeek `sf7` branch, see [Symfony 6.4 / 7.4 compatibility](Resources/doc/symfony_compatibility.md).
+
 The bulk of the documentation is stored in the `Resources/doc/index.md` file in this bundle:
 
 [Read the Documentation for master](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle/blob/master/Resources/doc/index.md)

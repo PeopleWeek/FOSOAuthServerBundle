@@ -112,14 +112,12 @@ class AuthCodeManagerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('persist')
             ->with($authCode)
-            ->willReturn(null)
         ;
 
         $this->documentManager
             ->expects($this->once())
             ->method('flush')
             ->with()
-            ->willReturn(null)
         ;
 
         $this->assertNull($this->instance->updateAuthCode($authCode));
@@ -136,14 +134,12 @@ class AuthCodeManagerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('remove')
             ->with($authCode)
-            ->willReturn(null)
         ;
 
         $this->documentManager
             ->expects($this->once())
             ->method('flush')
             ->with()
-            ->willReturn(null)
         ;
 
         $this->assertNull($this->instance->deleteAuthCode($authCode));
@@ -184,14 +180,14 @@ class AuthCodeManagerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($queryBuilder)
         ;
 
-        $data = [
-            'n' => \random_bytes(10),
-        ];
+        $deletedCount = 7;
+        $deleteResult = $this->createMock(\MongoDB\DeleteResult::class);
+        $deleteResult->method('getDeletedCount')->willReturn($deletedCount);
 
         $collection = $this->createMock(Collection::class);
         $collection->expects(self::once())
             ->method('deleteMany')
-            ->willReturn($data)
+            ->willReturn($deleteResult)
         ;
 
         $query = new Query(
@@ -200,7 +196,7 @@ class AuthCodeManagerTest extends \PHPUnit\Framework\TestCase
             $collection,
             [
                 'type' => Query::TYPE_REMOVE,
-                'query' => null,
+                'query' => [],
             ],
             [],
             false
@@ -215,6 +211,6 @@ class AuthCodeManagerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($query)
         ;
 
-        $this->assertSame($data['n'], $this->instance->deleteExpired());
+        $this->assertSame($deletedCount, $this->instance->deleteExpired());
     }
 }

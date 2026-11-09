@@ -75,7 +75,7 @@ class Client implements ClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getPublicId()
+    public function getPublicId(): string
     {
         return sprintf('%s_%s', $this->getId(), $this->getRandomId());
     }
@@ -115,7 +115,7 @@ class Client implements ClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getRedirectUris()
+    public function getRedirectUris(): array
     {
         return $this->redirectUris;
     }

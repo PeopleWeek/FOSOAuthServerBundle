@@ -42,7 +42,7 @@ class User implements UserInterface
         return $this->id;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return ['ROLE_USER'];
     }
@@ -60,6 +60,11 @@ class User implements UserInterface
     public function getSalt()
     {
         return null;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->getId();
     }
 
     public function getUsername()

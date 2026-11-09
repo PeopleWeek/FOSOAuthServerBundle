@@ -15,7 +15,6 @@ namespace FOS\OAuthServerBundle\Tests;
 
 use FOS\OAuthServerBundle\DependencyInjection\Compiler;
 use FOS\OAuthServerBundle\FOSOAuthServerBundle;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class FOSOAuthServerBundleTest extends \PHPUnit\Framework\TestCase
@@ -29,41 +28,14 @@ class FOSOAuthServerBundleTest extends \PHPUnit\Framework\TestCase
     {
         $bundle = new FOSOAuthServerBundle();
 
-        /** @var ContainerBuilder|\PHPUnit\Framework\MockObject\MockObject $containerBuilder */
-        $containerBuilder = $this->getMockBuilder(ContainerBuilder::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'getExtension',
-                'addCompilerPass',
-            ])
-            ->getMock()
-        ;
-
-        /** @var SecurityExtension|\PHPUnit\Framework\MockObject\MockObject $securityExtension */
-        $securityExtension = $this->getMockBuilder(SecurityExtension::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-
-        $containerBuilder
-            ->expects($this->at(0))
-            ->method('getExtension')
-            ->with('security')
-            ->willReturn($securityExtension)
-        ;
-
-        $containerBuilder
-            ->expects($this->at(1))
+        $containerBuilder = $this->createMock(ContainerBuilder::class);
+        $containerBuilder->expects($this->exactly(2))
             ->method('addCompilerPass')
             ->withConsecutive(
                 [new Compiler\GrantExtensionsCompilerPass()],
                 [new Compiler\RequestStackCompilerPass()]
             )
-            ->willReturnOnConsecutiveCalls(
-                $containerBuilder,
-                $containerBuilder
-            )
-        ;
+            ->willReturnSelf();
 
         $this->assertNull($bundle->build($containerBuilder));
     }

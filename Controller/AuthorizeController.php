@@ -142,7 +142,7 @@ class AuthorizeController
         $event = $this->eventDispatcher->dispatch(new PreAuthorizationEvent($user, $this->getClient()));
 
         if ($event->isAuthorizedClient()) {
-            $scope = $request->get('scope', null);
+            $scope = $request->query->get('scope', $request->request->get('scope'));
 
             return $this->oAuth2Server->finishClientAuthorization(true, $user, $request, $scope);
         }
@@ -172,7 +172,7 @@ class AuthorizeController
 
         $formName = $this->authorizeForm->getName();
         if (!$request->query->all() && $request->request->has($formName)) {
-            $request->query->add($request->request->get($formName));
+            $request->query->add($request->request->all($formName));
         }
 
         try {
@@ -207,8 +207,8 @@ class AuthorizeController
             throw new NotFoundHttpException('Client not found.');
         }
 
-        if (null === $clientId = $request->get('client_id')) {
-            $formData = $request->get($this->authorizeForm->getName(), []);
+        if (null === $clientId = $request->query->get('client_id', $request->request->get('client_id'))) {
+            $formData = $request->request->all($this->authorizeForm->getName());
             $clientId = isset($formData['client_id']) ? $formData['client_id'] : null;
         }
 

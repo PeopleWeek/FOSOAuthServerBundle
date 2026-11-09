@@ -53,7 +53,7 @@ class CleanCommandTest extends \PHPUnit\Framework\TestCase
         $command = new CleanCommand($this->accessTokenManager, $this->refreshTokenManager, $this->authCodeManager);
 
         $application = new Application();
-        $application->add($command);
+        $application->addCommands([$command]);
 
         /** @var CleanCommand $command */
         $command = $application->find($command->getName());
@@ -97,20 +97,4 @@ class CleanCommandTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString(sprintf('Removed %d items from %s storage.', $expiredAuthCodes, get_class($this->authCodeManager)), $display);
     }
 
-    /**
-     * Skip classes for deleting expired tokens that do not implement AuthCodeManagerInterface or TokenManagerInterface.
-     */
-    public function testItShouldNotRemoveExpiredTokensForOtherClasses(): void
-    {
-        $this->markTestIncomplete('Needs a better way of testing this');
-
-        $tester = new CommandTester($this->command);
-        $tester->execute(['command' => $this->command->getName()]);
-
-        $display = $tester->getDisplay();
-
-        $this->assertNotRegExp(sprintf('\'Removed (\d)+ items from %s storage.\'', get_class($this->accessTokenManager)), $display);
-        $this->assertNotRegExp(sprintf('\'Removed (\d)+ items from %s storage.\'', get_class($this->refreshTokenManager)), $display);
-        $this->assertNotRegExp(sprintf('\'Removed (\d)+ items from %s storage.\'', get_class($this->authCodeManager)), $display);
-    }
 }

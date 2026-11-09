@@ -23,7 +23,8 @@ use FOS\OAuthServerBundle\Model\RefreshToken;
 use FOS\OAuthServerBundle\Model\RefreshTokenManagerInterface;
 use FOS\OAuthServerBundle\Storage\OAuthStorage;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
+use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
+use Symfony\Component\Security\Core\User\LegacyPasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -86,7 +87,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
             ->getMock()
         ;
 
-        $this->storage = new OAuthStorage($this->clientManager, $this->accessTokenManager, $this->refreshTokenManager, $this->authCodeManager, $this->encoderFactory, $this->usepr);
+        $this->storage = new OAuthStorage($this->clientManager, $this->accessTokenManager, $this->refreshTokenManager, $this->authCodeManager, $this->encoderFactory, $this->userProvider);
     }
 
     public function testGetClientReturnsClientWithGivenId(): void
@@ -377,7 +378,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
     public function testCheckUserCredentialsReturnsTrueOnValidCredentials(): void
     {
         $client = new Client();
-        $user = $this->getMockBuilder('Symfony\Component\Security\Core\User\UserInterface')
+        $user = $this->getMockBuilder(User::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
@@ -386,7 +387,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         $user->expects($this->once())
             ->method('getSalt')->with()->will($this->returnValue('bar'));
 
-        $encoder = $this->getMockBuilder(PasswordHasherInterface::class)
+        $encoder = $this->getMockBuilder(LegacyPasswordHasherInterface::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
@@ -416,7 +417,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
     public function testCheckUserCredentialsReturnsFalseOnInvalidCredentials(): void
     {
         $client = new Client();
-        $user = $this->getMockBuilder('Symfony\Component\Security\Core\User\UserInterface')
+        $user = $this->getMockBuilder(User::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
@@ -425,12 +426,12 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         $user->expects($this->once())
             ->method('getSalt')->with()->will($this->returnValue('bar'));
 
-        $encoder = $this->getMockBuilder('Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface')
+        $encoder = $this->getMockBuilder(LegacyPasswordHasherInterface::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
         $encoder->expects($this->once())
-            ->method('isPasswordValid')
+            ->method('verify')
             ->with('foo', 'baz', 'bar')
             ->will($this->returnValue(false))
         ;
@@ -442,7 +443,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->encoderFactory->expects($this->once())
-            ->method('getEncoder')
+            ->method('getPasswordHasher')
             ->with($user)
             ->will($this->returnValue($encoder))
         ;
@@ -619,7 +620,7 @@ class OAuthStorageTest extends \PHPUnit\Framework\TestCase
     }
 }
 
-class User implements UserInterface
+class User implements UserInterface, LegacyPasswordAuthenticatedUserInterface
 {
     /**
      * @var string|int
@@ -634,17 +635,17 @@ class User implements UserInterface
         $this->username = $username;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return [];
     }
 
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return null;
     }
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
         return null;
     }
@@ -652,6 +653,11 @@ class User implements UserInterface
     /**
      * @return string|int
      */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
     public function getUsername()
     {
         return $this->username;

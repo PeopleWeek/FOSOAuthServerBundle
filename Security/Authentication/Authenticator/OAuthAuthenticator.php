@@ -19,7 +19,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 class OAuthAuthenticator implements AuthenticatorInterface
@@ -72,19 +71,6 @@ class OAuthAuthenticator implements AuthenticatorInterface
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
-    {
-        $badge = $passport->getBadge(AccessTokenBadge::class);
-
-        assert($badge instanceof AccessTokenBadge);
-
-        $token = new OAuthToken($badge->getRoles());
-        $token->setToken($badge->getAccessToken()->getToken());
-        $token->setUser($badge->getAccessToken()->getUser());
-
-        return $token;
-    }
-
-    public function createAuthenticatedToken(PassportInterface $passport, string $firewallName): TokenInterface
     {
         $badge = $passport->getBadge(AccessTokenBadge::class);
 

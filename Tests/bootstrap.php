@@ -11,6 +11,4 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-require_once __DIR__.'/../vendor/autoload.php';
-
-\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+require_once defined('PHPUNIT_COMPOSER_INSTALL') ? PHPUNIT_COMPOSER_INSTALL : __DIR__.'/../vendor/autoload.php';

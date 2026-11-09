@@ -132,14 +132,12 @@ class TokenManagerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('remove')
             ->with($token)
-            ->willReturn(null)
         ;
 
         $this->documentManager
             ->expects($this->once())
             ->method('flush')
             ->with()
-            ->willReturn(null)
         ;
 
         $this->assertNull($this->instance->deleteToken($token));
@@ -180,14 +178,14 @@ class TokenManagerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($queryBuilder)
         ;
 
-        $data = [
-            'n' => \random_bytes(5),
-        ];
+        $deletedCount = 7;
+        $deleteResult = $this->createMock(\MongoDB\DeleteResult::class);
+        $deleteResult->method('getDeletedCount')->willReturn($deletedCount);
 
         $collection = $this->createMock(Collection::class);
         $collection->expects(self::once())
             ->method('deleteMany')
-            ->willReturn($data)
+            ->willReturn($deleteResult)
         ;
 
         $query = new Query(
@@ -196,7 +194,7 @@ class TokenManagerTest extends \PHPUnit\Framework\TestCase
             $collection,
             [
                 'type' => Query::TYPE_REMOVE,
-                'query' => null,
+                'query' => [],
             ],
             [],
             false
@@ -211,6 +209,6 @@ class TokenManagerTest extends \PHPUnit\Framework\TestCase
             ->willReturn($query)
         ;
 
-        $this->assertSame($data['n'], $this->instance->deleteExpired());
+        $this->assertSame($deletedCount, $this->instance->deleteExpired());
     }
 }

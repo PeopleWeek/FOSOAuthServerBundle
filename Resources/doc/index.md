@@ -3,9 +3,10 @@ Getting Started With FOSOAuthServerBundle
 
 ## Prerequisites
 
-This version of the bundle requires Symfony 2.8.
-If you are using Symfony 2.0.x, please use the 1.1.1 release of the bundle (or lower), and follow
-[this documentation](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle/blob/1.1.1/README.md).
+The PeopleWeek `sf7` branch supports Symfony `^6.4 || ^7.4` and PHP 8.1+.
+Symfony 7.4 requires PHP 8.2+. See [the compatibility notes](symfony_compatibility.md)
+for installation, current firewall configuration and validation details. Historical
+examples below may require adaptation to current Symfony APIs.
 
 #### Translations
 
@@ -484,10 +485,10 @@ Import the routing.yml configuration file in app/config/routing.yml:
 ``` yaml
 # app/config/routing.yml
 fos_oauth_server_token:
-    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
+    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.yaml"
 
 fos_oauth_server_authorize:
-    resource: "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
+    resource: "@FOSOAuthServerBundle/Resources/config/routing/authorize.yaml"
 ```
 
 Add FOSOAuthServerBundle settings in app/config/config.yml:
@@ -549,9 +550,9 @@ return $this->redirect($this->generateUrl('fos_oauth_server_authorize', array(
 
 ## Usage
 
-The `token` endpoint is at `/oauth/v2/token` by default (see `Resources/config/routing/token.xml`).
+The `token` endpoint is at `/oauth/v2/token` by default (see `Resources/config/routing/token.yaml`).
 
-The `authorize` endpoint is at `/oauth/v2/auth` by default (see `Resources/config/routing/authorize.xml`).
+The `authorize` endpoint is at `/oauth/v2/auth` by default (see `Resources/config/routing/authorize.yaml`).
 
 
 ## Next steps

@@ -1,4 +1,12 @@
 framework:
+    property_info: false
+    annotations: false
+    http_method_override: false
+    handle_all_throwables: true
+    validation:
+        email_validation_mode: html5
+    php_errors:
+        log: true
     form:
         enabled: true
     secret: test
@@ -6,7 +14,6 @@ framework:
         resource: '%kernel.project_dir%/Tests/Functional/config/routing.yml'
 
 twig:
-    exception_controller: null
     strict_variables: '%kernel.debug%'
 
 fos_oauth_server:
@@ -27,5 +34,6 @@ security:
 
         secured:
             pattern:    ^/
-            fos_oauth:  true
+            custom_authenticator: FOS\OAuthServerBundle\Security\Authentication\Authenticator\OAuthAuthenticator
+            provider: main
             stateless:  true

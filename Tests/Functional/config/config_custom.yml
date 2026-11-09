@@ -1,0 +1,28 @@
+imports:
+    - { resource: config.yml }
+
+fos_oauth_server:
+    db_driver: custom
+    client_class: FOS\OAuthServerBundle\Model\Client
+    access_token_class: FOS\OAuthServerBundle\Model\AccessToken
+    refresh_token_class: FOS\OAuthServerBundle\Model\RefreshToken
+    auth_code_class: FOS\OAuthServerBundle\Model\AuthCode
+    service:
+        client_manager: test.client_manager
+        access_token_manager: test.access_token_manager
+        refresh_token_manager: test.refresh_token_manager
+        auth_code_manager: test.auth_code_manager
+        user_provider: security.user.provider.concrete.main
+        options:
+            supported_scopes: api
+
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: plaintext
+    providers:
+        main:
+            memory:
+                users:
+                    alice: { password: secret, roles: [ROLE_USER] }
+    access_control:
+        - { path: ^/private, roles: ROLE_API }

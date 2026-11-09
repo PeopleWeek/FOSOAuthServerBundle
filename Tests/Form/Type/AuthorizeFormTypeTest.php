@@ -41,6 +41,15 @@ class AuthorizeFormTypeTest extends TypeTestCase
         $this->instance = new AuthorizeFormType();
     }
 
+    public function testFormThemeRendersWithoutSpaceless(): void
+    {
+        $twig = new \Twig\Environment(new \Twig\Loader\FilesystemLoader(__DIR__.'/../../../Resources/views'));
+        $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension());
+        $template = $twig->load('form.html.twig');
+        $html = $template->renderBlock('field_label', ['id' => 'client']);
+        self::assertSame('<label for="client">client</label>', $html);
+    }
+
     public function testSubmit(): void
     {
         $accepted = true;

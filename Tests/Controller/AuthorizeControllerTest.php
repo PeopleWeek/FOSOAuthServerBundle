@@ -23,7 +23,7 @@ use OAuth2\OAuth2;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -98,12 +98,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
     protected $request;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ParameterBag
+     * @var InputBag
      */
     protected $requestQuery;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ParameterBag
+     * @var InputBag
      */
     protected $requestRequest;
 
@@ -193,16 +193,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $this->requestQuery = $this->getMockBuilder(ParameterBag::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $this->requestRequest = $this->getMockBuilder(ParameterBag::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $this->requestQuery = new InputBag();
+        $this->requestRequest = new InputBag();
         $request->query = $this->requestQuery;
         $request->request = $this->requestRequest;
+        $this->session = $this->createMock(SessionInterface::class);
+        $request->method('getSession')->willReturn($this->session);
         $this->request = $request;
         $this->user = $this->getMockBuilder(UserInterface::class)
             ->disableOriginalConstructor()
@@ -236,13 +232,13 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->tokenStorage
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn($token)
         ;
 
         $token
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getUser')
             ->willReturn(null)
         ;
@@ -261,19 +257,19 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->tokenStorage
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn($token)
         ;
 
         $token
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getUser')
             ->willReturn($this->user)
         ;
 
         // $this->session
-        //     ->expects($this->at(0))
+        //     ->expects($this->once())
         //     ->method('get')
         //     ->with('_fos_oauth_server.ensure_logout')
         //     ->willReturn(false)
@@ -297,14 +293,14 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->authorizeFormHandler
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('process')
             ->with()
             ->willReturn(false)
         ;
 
         $this->form
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('createView')
             ->willReturn($this->formView)
         ;
@@ -333,19 +329,19 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->tokenStorage
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn($token)
         ;
 
         $token
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getUser')
             ->willReturn($this->user)
         ;
 
         // $this->session
-        //     ->expects($this->at(0))
+        //     ->expects($this->once())
         //     ->method('get')
         //     ->with('_fos_oauth_server.ensure_logout')
         //     ->willReturn(false)
@@ -370,17 +366,12 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
 
         $randomScope = 'scope'.\random_bytes(10);
 
-        $this->request
-            ->expects($this->at(0))
-            ->method('get')
-            ->with('scope', null)
-            ->willReturn($randomScope)
-        ;
+        $this->requestQuery->set('scope', $randomScope);
 
         $response = new Response();
 
         $this->oAuth2Server
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('finishClientAuthorization')
             ->with(
                 true,
@@ -402,19 +393,19 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->tokenStorage
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn($token)
         ;
 
         $token
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('getUser')
             ->willReturn($this->user)
         ;
 
         // $this->session
-        //     ->expects($this->at(0))
+        //     ->expects($this->once())
         //     ->method('get')
         //     ->with('_fos_oauth_server.ensure_logout')
         //     ->willReturn(true)
@@ -452,14 +443,14 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->authorizeFormHandler
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('process')
             ->with()
             ->willReturn(false)
         ;
 
         $this->form
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('createView')
             ->willReturn($this->formView)
         ;
@@ -511,11 +502,13 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         $propertyReflection->setValue($this->instance, $this->client);
 
         $this->eventDispatcher
-            ->expects($this->at(0))
+            ->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(new PreAuthorizationEvent($this->user, $this->client))
-            ->willReturn($this->preAuthorizationEvent)
-        ;
+            ->withConsecutive(
+                [new PreAuthorizationEvent($this->user, $this->client)],
+                [new PostAuthorizationEvent($this->user, $this->client, true)]
+            )
+            ->willReturnOnConsecutiveCalls($this->preAuthorizationEvent, $this->postAuthorizationEvent);
 
         $this->preAuthorizationEvent
             ->expects($this->once())
@@ -535,31 +528,14 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
             ->willReturn(true)
         ;
 
-        $this->eventDispatcher
-            ->expects($this->at(1))
-            ->method('dispatch')
-            ->with(new PostAuthorizationEvent($this->user, $this->client, true))
-        ;
-
-        $formName = 'formName'.\random_bytes(10);
+        $formName = 'authorization_form';
+        $posted = ['client_id' => 'test_client', 'scope' => 'api'];
+        $this->requestRequest->set($formName, $posted);
 
         $this->form
             ->expects($this->once())
             ->method('getName')
             ->willReturn($formName)
-        ;
-
-        $this->requestQuery
-            ->expects($this->once())
-            ->method('all')
-            ->willReturn([])
-        ;
-
-        $this->requestRequest
-            ->expects($this->once())
-            ->method('has')
-            ->with($formName)
-            ->willReturn(false)
         ;
 
         $randomScope = 'scope'.\random_bytes(10);
@@ -585,5 +561,6 @@ class AuthorizeControllerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $this->assertSame($response, $this->instance->authorizeAction($this->request));
+        $this->assertSame($posted, $this->requestQuery->all());
     }
 }

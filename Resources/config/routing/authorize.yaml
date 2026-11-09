@@ -1,0 +1,5 @@
+fos_oauth_server_authorize:
+    path: /oauth/v2/auth
+    methods: [GET, POST]
+    defaults:
+        _controller: fos_oauth_server.controller.authorize::authorizeAction

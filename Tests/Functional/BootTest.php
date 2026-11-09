@@ -23,11 +23,9 @@ class BootTest extends TestCase
     public function testBoot($env): void
     {
         try {
-            $kernel = static::createKernel(['env' => $env]);
-            $kernel->boot();
+            $kernel = static::bootKernel(['env' => $env]);
 
-            // no exceptions were thrown
-            self::assertTrue(true);
+            self::assertInstanceOf(\FOS\OAuthServerBundle\Controller\AuthorizeController::class, $kernel->getContainer()->get('fos_oauth_server.controller.authorize'));
         } catch (\Exception $exception) {
             $this->fail($exception->getMessage());
         }
@@ -36,7 +34,7 @@ class BootTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getTestBootData()
+    public static function getTestBootData(): array
     {
         return [
             ['orm'],

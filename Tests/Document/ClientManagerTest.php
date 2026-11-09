@@ -106,14 +106,12 @@ class ClientManagerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('persist')
             ->with($client)
-            ->willReturn(null)
         ;
 
         $this->documentManager
             ->expects($this->once())
             ->method('flush')
             ->with()
-            ->willReturn(null)
         ;
 
         $this->assertNull($this->instance->updateClient($client));
@@ -130,14 +128,12 @@ class ClientManagerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('remove')
             ->with($client)
-            ->willReturn(null)
         ;
 
         $this->documentManager
             ->expects($this->once())
             ->method('flush')
             ->with()
-            ->willReturn(null)
         ;
 
         $this->assertNull($this->instance->deleteClient($client));

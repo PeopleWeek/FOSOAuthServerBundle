@@ -13,34 +13,26 @@ declare(strict_types=1);
 
 namespace FOS\OAuthServerBundle\Tests\Functional;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-abstract class TestCase extends WebTestCase
+abstract class TestCase extends KernelTestCase
 {
-    /**
-     * @var KernelInterface|null
-     */
-    protected static $kernel;
-
     protected function setUp(): void
     {
+        parent::setUp();
+
         $fs = new Filesystem();
         $fs->remove(sys_get_temp_dir().'/FOSOAuthServerBundle/');
-    }
-
-    protected function tearDown(): void
-    {
-        static::$kernel = null;
     }
 
     /**
      * @param array<mixed> $options
      */
-    protected static function createKernel(array $options = [])
+    protected static function createKernel(array $options = []): KernelInterface
     {
-        $env = @$options['env'] ?: 'test';
+        $env = $options['env'] ?? 'orm';
 
         return new AppKernel($env, true);
     }
